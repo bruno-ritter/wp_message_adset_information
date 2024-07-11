@@ -1,5 +1,7 @@
 import requests
-from creds import account, access_token 
+import json
+from creds import account, access_token
+from datetime import date, timedelta
 
 def get_data_meta_ads(account, access_token, timeframe='last_7d'):
 
@@ -10,10 +12,17 @@ def get_data_meta_ads(account, access_token, timeframe='last_7d'):
 
     return json_data
 
-json_adset = get_data_meta_ads(account, access_token, timeframe='last_month')
+yesterday = (date.today() - timedelta(days=1))
 
-print(json_adset)
+json_adset = get_data_meta_ads(account, access_token)
 
+json_adset_yesterday = [item for item in json_adset['data'] if item['date_start'] == yesterday.strftime("%Y-%m-%d")]
 
+# print(json.dumps(json_adset_yesterday, indent=2))
+ 
+amount_spend_in_period = round(sum(float(item['spend']) for item in json_adset['data']), 2)
+amount_spend_yesterday = round(sum(float(item['spend']) for item in json_adset_yesterday), 2)
 
+message = f"Nos últimos 7 dias foram investidos R$ {amount_spend_in_period}. E ontem ({yesterday.strftime('%d/%m')}) foram investidos R$ {amount_spend_yesterday}."
 
+print(message)
